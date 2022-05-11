@@ -7,6 +7,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zaptest/observer"
 )
@@ -21,20 +22,16 @@ func TestZapLogger(t *testing.T) {
 		return c.String(http.StatusOK, "")
 	}
 
-	obs, logs := observer.New(zap.DebugLevel)
-
+	obs, logs := observer.New(zap.InfoLevel)
 	logger := zap.New(obs)
 
-	err := ZapLogger(logger)(h)(c)
+	err := ZapLogger(WrapSugared(logger.Sugar()))(h)(c)
 
 	assert.Nil(t, err)
 
-	logFields := logs.AllUntimed()[0].ContextMap()
+	logFields := logs.All()
+	require.Equal(t, 1, logs.Len())
 
-	assert.Equal(t, 1, logs.Len())
-	assert.Equal(t, int64(200), logFields["status"])
-	assert.NotNil(t, logFields["latency"])
-	assert.Equal(t, "GET /something", logFields["request"])
-	assert.NotNil(t, logFields["host"])
-	assert.NotNil(t, logFields["size"])
+	assert.Equal(t, logFields[0].ContextMap()["user_agent"], "")
+	assert.Equal(t, logFields[0].ContextMap()["status"], int64(200))
 }

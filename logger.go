@@ -6,11 +6,22 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
 )
 
+type Sugared struct {
+	*zap.SugaredLogger
+}
+
+func WrapSugared(z *zap.SugaredLogger) *Sugared {
+	return &Sugared{z}
+}
+
+type Logger interface {
+	Log(status int, err error, fields []interface{})
+}
+
 // ZapLogger is a middleware and zap to provide an "access log" like logging for each request.
-func ZapLogger(log *zap.Logger) echo.MiddlewareFunc {
+func ZapLogger(log Logger) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			start := time.Now()
@@ -23,14 +34,14 @@ func ZapLogger(log *zap.Logger) echo.MiddlewareFunc {
 			req := c.Request()
 			res := c.Response()
 
-			fields := []zapcore.Field{
-				zap.String("remote_ip", c.RealIP()),
-				zap.String("latency", time.Since(start).String()),
-				zap.String("host", req.Host),
-				zap.String("request", fmt.Sprintf("%s %s", req.Method, req.RequestURI)),
-				zap.Int("status", res.Status),
-				zap.Int64("size", res.Size),
-				zap.String("user_agent", req.UserAgent()),
+			fields := []interface{}{
+				"remote_ip", c.RealIP(),
+				"latency", time.Since(start).String(),
+				"host", req.Host,
+				"request", fmt.Sprintf("%s %s", req.Method, req.RequestURI),
+				"status", res.Status,
+				"size", res.Size,
+				"user_agent", req.UserAgent(),
 			}
 
 			id := req.Header.Get(echo.HeaderXRequestID)
@@ -39,19 +50,23 @@ func ZapLogger(log *zap.Logger) echo.MiddlewareFunc {
 				fields = append(fields, zap.String("request_id", id))
 			}
 
-			n := res.Status
-			switch {
-			case n >= 500:
-				log.With(zap.Error(err)).Error("Server error", fields...)
-			case n >= 400:
-				log.With(zap.Error(err)).Warn("Client error", fields...)
-			case n >= 300:
-				log.Info("Redirection", fields...)
-			default:
-				log.Info("Success", fields...)
-			}
+			log.Log(res.Status, err, fields)
 
 			return nil
 		}
+	}
+}
+
+func (sl *Sugared) Log(status int, err error, fields []interface{}) {
+	n := status
+	switch {
+	case n >= 500:
+		sl.With(fields...).With(zap.Error(err)).Error("Server error")
+	case n >= 400:
+		sl.With(fields...).With(zap.Error(err)).Warn("Client error")
+	case n >= 300:
+		sl.With(fields...).Info("Redirection")
+	default:
+		sl.With(fields...).Info("Success")
 	}
 }
