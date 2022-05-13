@@ -1,15 +1,12 @@
-
-# echozap
+# Echozap
 
 > Middleware for Golang [Echo](https://echo.labstack.com/) framework that provides integration with Uber´s [Zap](https://github.com/uber-go/zap)  logging library for logging HTTP requests.
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
-[![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg?style=for-the-badge)](http://commitizen.github.io/cz-cli/)
-[![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg?style=for-the-badge)](https://github.com/semantic-release/semantic-release?style=for-the-badge)
 
-[![Actions Status](https://github.com/brpaz/echozap/workflows/CI/badge.svg?style=for-the-badge)](https://github.com/brpaz/echozap/actions)
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/99c5875d156440c0b861dad80c76c01f)](https://www.codacy.com/manual/brpaz/echozap?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=brpaz/echozap&amp;utm_campaign=Badge_Grade)
-[![Codacy Badge](https://api.codacy.com/project/badge/Coverage/99c5875d156440c0b861dad80c76c01f)](https://www.codacy.com/manual/brpaz/echozap?utm_source=github.com&utm_medium=referral&utm_content=brpaz/echozap&utm_campaign=Badge_Coverage)
+[![Build Status](https://travis-ci.com/diptomondal007/bdstockexchange.svg?branch=master)](https://travis-ci.com/github/diptomondal007/bdstockexchange)
+[![Coverage Status](https://coveralls.io/repos/github/diptomondal007/echozap/badge.svg?branch=master)](https://coveralls.io/github/diptomondal007/echozap?branch=master)
+[![Go Report Card](https://goreportcard.com/badge/github.com/diptomondal007/echozap)](https://goreportcard.com/report/github.com/diptomondal007/echozap)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 ## Pre-requisites
 
@@ -25,7 +22,7 @@ package main
 import (
 	"net/http"
 
-	"github.com/brpaz/echozap"
+	"github.com/diptomondal007/echozap"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )
@@ -33,9 +30,9 @@ import (
 func main() {
 	e := echo.New()
 
-	zap, _ := zap.NewProduction()
+	logger, _ := zap.NewProduction()
 
-	e.Use(echozap.ZapLogger(echozap.WrapSugared(zap.Sugar())))
+	e.Use(echozap.ZapLogger(echozap.WrapSugared(logger.Sugar())))
 
 	e.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Hello, World!")
