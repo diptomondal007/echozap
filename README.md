@@ -33,9 +33,9 @@ import (
 func main() {
 	e := echo.New()
 
-	zapLogger, _ := zap.NewProduction()
+	zap, _ := zap.NewProduction()
 
-	e.Use(echozap.ZapLogger(zapLogger))
+	e.Use(echozap.ZapLogger(echozap.WrapSugared(zap.Sugar())))
 
 	e.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Hello, World!")
@@ -55,10 +55,6 @@ The following information is logged:
 *  Hostname
 *  Remote IP Address
 
-## Todo
-
-*  Add more customization options.
-
 ## 🤝 Contributing
 
 Contributions, issues and feature requests are welcome!
@@ -70,13 +66,6 @@ If this project have been useful for you, I would be grateful to have your suppo
 Give a ⭐️ to the project, or just:
 
 <a href="https://www.buymeacoffee.com/Z1Bu6asGV" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: auto !important;width: auto !important;" ></a>
-
-## Author
-
-👤 **Bruno Paz**
-
-*  Website: [https://github.com/brpaz](https://github.com/brpaz)
-*  Github: [@brpaz](https://github.com/brpaz)
 
 ## 📝 License
 
