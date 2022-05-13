@@ -80,6 +80,6 @@ Give a ⭐️ to the project, or just:
 
 ## 📝 License
 
-Copyright © 2019 [Bruno Paz](https://github.com/brpaz).
+Copyright © 2019 [Dipto Mondal](https://github.com/diptomondal007).
 
 This project is [MIT](LICENSE) licensed.
